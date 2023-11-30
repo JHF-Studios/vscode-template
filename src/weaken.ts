@@ -8,7 +8,7 @@ export async function main(ns : NS) : Promise<void> {
     ])
     ns.print(`Target: ${args.target}, Persist: ${args.persist} with type: ${typeof(args.persist)}`)
     do{
-        await ns.hack(args.target.toString());
+        await ns.weaken(args.target.toString());
     }while(args.persist)
 
 }
