@@ -33,6 +33,7 @@ export async function main(ns:NS) {
         }
         
     }
+
     //set minSec to targets lowest security
     const MINSEC = ns.getServerMinSecurityLevel(target);
 
