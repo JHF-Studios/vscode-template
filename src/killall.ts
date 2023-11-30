@@ -6,4 +6,5 @@ export async function main(ns : NS) : Promise<void> {
     
     for (let i = 0; i < servers.length; i++) {
         ns.killall(servers[i]);
+    }   
 }
