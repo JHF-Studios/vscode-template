@@ -3,7 +3,6 @@ const HOUR = 3600000;
 const MINUTE = 60000;
 const SECOND = 1000;
 
-const MINSEC = 1;
 //get all servers that currently have admin rights
 function getServers(ns:NS, current='home', set=new Set()){
     const connections: string[] = ns.scan(current);
@@ -22,7 +21,7 @@ export async function main(ns:NS) {
     //get list of servers 
     await ns.exec('spider.js', 'home');
     ns.print("Updating servers list...");
-    const servers: string[] = (await getServers(ns) as string[]);
+    let servers: string[] = (await getServers(ns) as string[]);
     ns.tprint(servers);
     //check for new target
     ns.print("Finding best target...")
@@ -34,6 +33,13 @@ export async function main(ns:NS) {
         }
         
     }
+    //set minSec to targets lowest security
+    const MINSEC = ns.getServerMinSecurityLevel(target);
+
+    //remove servers without root permission from list
+    servers = servers.filter(c => {return ns.getServer(c).hasAdminRights && ns.getServerMaxRam(c) !== 0 && c !== 'home'})
+    ns.tprint("Current available servers: " + servers)
+    ns.tprint(`There should be ${servers.length} servers running`)
     //begin loop
     ns.print("Setting up game loop");
     const lastUpdate: number = Date.now();
@@ -42,15 +48,8 @@ export async function main(ns:NS) {
         const currentMoney: number = await ns.getServerMoneyAvailable(target);
         const currentSecurity: number = await ns.getServerSecurityLevel(target);
         let action = 'waiting';
-       
-
         for (const server of servers){
             ns.tprint(`Currently setting action on server ${server}`)
-        if(!ns.getServer(server).hasAdminRights || server === 'home') {
-            ns.tprint(`Removing ${server} from list due to not having access (or is home)`)
-            servers.filter(c => c != server);
-            continue;
-        }
         //get available threads for hacking
         const serverMaxRam: number = await ns.getServerMaxRam(server);
         const usedRam: number = await ns.getServerUsedRam(server);
@@ -64,7 +63,7 @@ export async function main(ns:NS) {
             action = '';
             break; // Servers did not finish in time, sleep again
             }
-            ns.exec('weaken.js', server, threads, target, false);
+            ns.exec('weaken.js', server, threads, '--target', target);
         } else if(currentMoney < maxMoney * 0.8){
             const scriptCost = await ns.getScriptRam('grow.js');
             ns.print("cost of action: " + Math.ceil(scriptCost));
@@ -74,7 +73,7 @@ export async function main(ns:NS) {
             action = '';
             break; // Servers did not finish in time, sleep again
             }
-            ns.exec('grow.js', server, threads, target, false);
+            ns.exec('grow.js', server, threads, '--target', target);
         } else{
             const scriptCost = await ns.getScriptRam('hack.js');
             ns.print("cost of action: " + Math.ceil(scriptCost));
@@ -84,7 +83,7 @@ export async function main(ns:NS) {
             action = '';
             break; // Servers did not finish in time, sleep again
             }
-            ns.exec('hack.js', server, threads, target, false)
+            ns.exec('hack.js', server, threads, '--target', target)
         } 
         }
         let sleepTime = 0;
@@ -107,7 +106,7 @@ export async function main(ns:NS) {
             sleepTime = MINUTE; //sleep for one minute by defualt
             break;
         }
-        ns.print(`Going to sleep with current target information: money: ${Math.floor(currentMoney)} security: ${Math.floor(currentSecurity)}`);
+        ns.print(`Going to sleep with current target information: money: ${Math.floor(currentMoney).toLocaleString("en-US", {style:"currency", currency:"USD"})} security: ${Math.floor(currentSecurity)}`);
         await ns.sleep(sleepTime+SECOND);
         if(lastUpdate + HOUR <= Date.now() && action !== 'waiting'){
             ns.print("An hour has passed. Updating information...")
