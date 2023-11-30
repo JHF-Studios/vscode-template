@@ -8,7 +8,7 @@ export async function main(ns : NS) : Promise<void> {
     for (let i = 0; i < servers.length; i++) {
         const server = ns.getServer(servers[i]);
         const maxRAM = ns.getPurchasedServerMaxRam(servers[i]);
-        const ramUpgrade = ns.getPurchasedServerCostUpgrade(servers[i]);
+        const ramUpgrade = ns.getPurchasedServerUpgradeCost(servers[i]);
         const upgradeCost = player.money - ramUpgrade
         let canUpgrade = false
         if (upgradeCost > 0) {
