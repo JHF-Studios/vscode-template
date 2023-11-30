@@ -5,10 +5,6 @@ export async function main(ns : NS) : Promise<void> {
     const servers : Array<string> = ns.getPurchasedServers();
     const serverRAM: number[] = [];
 
-    if (ns.fileExists("sortedPurServ.txt")) {
-        ns.rm("sortedPurServ.txt");
-    }
-
     for (let i = 0; i < servers.length; i++) {
     const server = ns.getServer(servers[i]);
     serverRAM.push(server.maxRam);
@@ -20,10 +16,6 @@ export async function main(ns : NS) : Promise<void> {
     }));
 
     combinedArray.sort((a, b) => a.serverRAM - b.serverRAM);
-
-    combinedArray.forEach((item) => {
-        const serverName = item.server;
-        const serverRam = item.serverRAM;
-        ns.write("sortedPurServ.txt", "Server: " + serverName + " RAM: " + serverRam, "a");
-      });
+    await ns.writePort(1, Math.max(...serverRAM));
+    ns.write("sortedPurServ.txt", JSON.stringify(combinedArray), "w");
 }
