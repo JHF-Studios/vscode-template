@@ -3,16 +3,24 @@ import { NS } from '@ns'
 export async function main(ns : NS) : Promise<void> {
     //
     const servers : Array<string> = ns.getPurchasedServers();
-    let serverRAM = 2;
-    const player = ns.getPlayer();
-    const playerMoney = player.money;
-    let serverUpgradeCost = 0;
+    const serverRAM: number[] = [];
 
-    while (serverUpgradeCost <= playerMoney / 2) {
-        for (let i = 0; i < servers.length; i++) {
-            serverUpgradeCost = ns.getPurchasedServerUpgradeCost(servers[i], serverRAM);
-            ns.upgradePurchasedServer(servers[i], serverRAM);
-        }
-    serverRAM = serverRAM * 2;
+    for (let i = 0; i < servers.length; i++) {
+    const server = ns.getServer(servers[i]);
+    serverRAM.push(server.maxRam);
     }
+
+    const combinedArray: { server: string; serverRAM: number }[] = servers.map((server, index) => ({
+    server,
+    serverRAM: serverRAM[index],
+    }));
+
+    combinedArray.sort((a, b) => a.serverRAM - b.serverRAM);
+
+    combinedArray.forEach((item) => {
+        const serverName = item.server;
+        const serverRam = item.serverRAM * 2;
+        ns.upgradePurchasedServer(serverName, serverRam);
+      });
 }
+

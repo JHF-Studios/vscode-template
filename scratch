@@ -1,0 +1,76 @@
+import { NS } from '@ns'
+
+export async function main(ns: NS): Promise<void> {
+    // Hack target
+    const flags = ns.flags([
+      ['server', 'n00dles'],
+      ['t', '1'],
+    ]);
+    const target = flags.server.toString();
+    const moneyThresh = ns.getServerMaxMoney(target) * 0.75;
+    const securityThresh = ns.getServerMinSecurityLevel(target) + 5;
+  
+    if (ns.fileExists('BruteSSH.exe', 'home')) {
+      ns.brutessh(target);
+    }
+  
+    ns.nuke(target);
+  
+    while (true) {
+      if (ns.getServerSecurityLevel(target) > securityThresh) {
+        await ns.weaken(target);
+      } else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
+
+      } else {
+        await ns.hack(target);
+      }
+    }
+  }
+
+  import { NS } from '@ns'
+
+export async function main(ns : NS) : Promise<void> {
+    //
+    const servers : Array<string> = ns.getPurchasedServers();
+    const serverRAM: number[] = [];
+
+    for (let i = 0; i < servers.length; i++) {
+    const server = ns.getServer(servers[i]);
+    serverRAM.push(server.maxRam);
+    }
+
+    const combinedArray: { server: string; serverRAM: number }[] = servers.map((server, index) => ({
+    server,
+    serverRAM: serverRAM[index],
+    }));
+
+    combinedArray.sort((a, b) => a.serverRAM - b.serverRAM);
+
+    combinedArray.forEach((item) => {
+        const serverName = item.server;
+        const serverRam = item.serverRAM * 2;
+        ns.upgradePurchasedServer(serverName, serverRam);
+      });
+}
+
+import { NS } from '@ns'
+
+export async function main(ns : NS) : Promise<void> {
+    //
+    const servers: Array<string> = ns.getPurchasedServers();
+    const player = ns.getPlayer();
+
+    for (let i = 0; i < servers.length; i++) {
+        const server = ns.getServer(servers[i]);
+        const maxRAM = ns.getPurchasedServerMaxRam(servers[i]) / 1024;
+        const ramUpgrade = ns.getPurchasedServerUpgradeCost(servers[i], maxRAM);
+        const upgradeCost = player.money - ramUpgrade
+        let canUpgrade = false
+        if (upgradeCost > 0) {
+            canUpgrade = true
+        }
+        ns.tprint("Hostname: " + server.hostname, " MaxRAM: " + server.maxRam, "gb Total RAM : " + maxRAM, "gb");
+        ns.tprint("Player Money: " + player.money.toLocaleString("en-US", {style:"currency", currency:"USD"}), " Upgrade Cost: " + ramUpgrade.toLocaleString("en-US", {style:"currency", currency:"USD"}), " Can Upgrade: " + canUpgrade);
+        await ns.write("curPurServs", )
+    }
+}
