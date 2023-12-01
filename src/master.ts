@@ -14,5 +14,5 @@ export async function main(ns : NS) : Promise<void> {
         if (purchServers.length < purchServerLimit) {
             ns.run("getservers.js")
         }
-
+        
 }
