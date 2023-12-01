@@ -43,6 +43,7 @@ export async function main(ns:NS) {
         })
         const minSec = ns.getServerMinSecurityLevel(target);
         const maxMoney = ns.getServerMaxMoney(target);
+        ns.print(`Target has been set to ${target} with a minimum security of ${minSec} and a max money of ${maxMoney}`);
 
         ns.print("Filtering server list for root access");
         slist = slist.filter(s => {return ns.getServer(s).hasAdminRights && ns.getServerMaxRam(s) !== 0 && s !== 'home'});
@@ -60,7 +61,7 @@ export async function main(ns:NS) {
             const weakenTime: number = ns.getWeakenTime(target);
             const growTime: number = ns.getGrowTime(target);
             ns.print("Information gathered. Determining best action...")
-            if(currentSecurity < minSec)action = "weakening";
+            if(currentSecurity > minSec)action = "weakening";
             else if (currentMoney < maxMoney) action = "growing";
             else action = 'hacking';
             ns.print(`now ${action} ${target}`);
