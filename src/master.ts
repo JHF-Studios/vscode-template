@@ -5,8 +5,6 @@ export async function main(ns : NS) : Promise<void> {
     const purchServers : string[] = ns.getPurchasedServers();
     const player = ns.getPlayer();
     const purchserverLimit = ns.getPurchasedServerLimit();
-    let purchServerRamLimit = 0;
-    let server = "";
 
     while (true) {
         await ns.run("serverstats.js");
@@ -14,5 +12,5 @@ export async function main(ns : NS) : Promise<void> {
         if (purchServers.length < purchServerLimit) {
             ns.run("getservers.js")
         }
-
+        
 }
